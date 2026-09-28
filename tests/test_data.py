@@ -3,8 +3,8 @@
 import pandas as pd
 import pytest
 
-import src.idxlab.data as data_module
-from src.idxlab.data import DataLoader
+import idxlab.data as data_module
+from idxlab.data import DataLoader
 
 
 def _fake_ohlcv(n_days: int = 5) -> pd.DataFrame:

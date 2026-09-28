@@ -3,7 +3,7 @@
 import numpy as np
 import pandas as pd
 
-from src.idxlab.clean import (
+from idxlab.clean import (
     align_trading_calendar,
     flag_potential_split_artifacts,
     handle_missing_values,
