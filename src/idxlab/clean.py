@@ -9,10 +9,16 @@ auto-adjustment should already have corrected.
 from __future__ import annotations
 
 import pandas as pd
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def remove_duplicate_dates(df: pd.DataFrame) -> pd.DataFrame:
     """Drop duplicate index entries, keeping the first occurrence."""
+    n_dupes = int(df.index.duplicated().sum())
+    if n_dupes:
+        logger.warning("Removed %d duplicate date(s)", n_dupes)
     return df[~df.index.duplicated(keep="first")]
 
 
@@ -39,7 +45,12 @@ def handle_missing_values(df: pd.DataFrame, max_gap_days: int = 3) -> pd.DataFra
     """
     df = df.sort_index()
     df = df.ffill(limit=max_gap_days)
+    before = len(df)
     df = df.dropna()
+    dropped = before - len(df)
+    if dropped:
+        logger.warning("Dropped %d row(s) still containing NaNs after forward-fill", dropped)
+    return df
     return df
 
 
@@ -69,6 +80,9 @@ def flag_potential_split_artifacts(
     df = df.copy()
     daily_change = df["Close"].pct_change().abs()
     df["split_suspect"] = daily_change > threshold
+    n_suspect = int(df["split_suspect"].sum())
+    if n_suspect:
+        logger.warning("%d potential split artifact(s) flagged", n_suspect)
     return df
 
 
