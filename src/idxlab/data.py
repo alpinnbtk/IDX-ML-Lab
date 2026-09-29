@@ -72,6 +72,10 @@ class DataLoader:
             end=self.end_date,
             progress=False,
         )
+
+        if isinstance(df.columns, pd.MultiIndex):
+            df.columns = df.columns.get_level_values(0)
+            
         if df.empty:
             logger.error("No data returned for %s", ticker)
             raise ValueError(f"No data returned for ticker: {ticker}")

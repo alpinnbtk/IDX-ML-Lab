@@ -7,10 +7,10 @@ import idxlab.data as data_module
 from idxlab.data import DataLoader
 
 
-def _fake_ohlcv(n_days: int = 5) -> pd.DataFrame:
+def _fake_ohlcv(n_days: int = 5, multiindex_ticker: str | None = None) -> pd.DataFrame:
     """Build a small fake OHLCV DataFrame, same shape as yfinance output."""
     dates = pd.date_range("2024-01-01", periods=n_days, freq="D")
-    return pd.DataFrame(
+    df = pd.DataFrame(
         {
             "Open": range(n_days),
             "High": range(n_days),
@@ -20,6 +20,9 @@ def _fake_ohlcv(n_days: int = 5) -> pd.DataFrame:
         },
         index=dates,
     )
+    if multiindex_ticker:
+        df.columns = pd.MultiIndex.from_product([df.columns, [multiindex_ticker]])
+    return df
 
 
 @pytest.fixture
@@ -52,6 +55,18 @@ def test_load_fetches_from_api_when_no_cache_exists(loader, monkeypatch):
     assert call_count["n"] == 1
     assert not df.empty
     assert loader._cache_path("FAKE.JK").exists()
+
+def test_fetch_flattens_multiindex_columns(loader, monkeypatch):
+    monkeypatch.setattr(
+        data_module.yf,
+        "download",
+        lambda *a, **k: _fake_ohlcv(multiindex_ticker="FAKE.JK"),
+    )
+
+    df = loader.load("FAKE.JK")
+
+    assert not isinstance(df.columns, pd.MultiIndex)
+    assert list(df.columns) == ["Open", "High", "Low", "Close", "Volume"]
 
 
 def test_load_uses_cache_on_second_call(loader, monkeypatch):
