@@ -102,3 +102,53 @@ def bollinger_bands(
             "bb_lower": middle - num_std * std,
         }
     )
+
+def atr(
+    high: pd.Series,
+    low: pd.Series,
+    close: pd.Series,
+    window: int = 14,
+) -> pd.Series:
+    """Average True Range — a volatility measure, using Wilder's smoothing.
+
+    True Range for each day is the largest of three values: today's
+    high-low range, or the gap between today's high/low and
+    yesterday's close (captures overnight gaps, not just intraday
+    range). ATR is Wilder's smoothed average of True Range — same
+    smoothing method as `rsi`, for consistency.
+    """
+    prev_close = close.shift(1)
+    true_range = pd.concat(
+        [
+            high - low,
+            (high - prev_close).abs(),
+            (low - prev_close).abs(),
+        ],
+        axis=1,
+    ).max(axis=1)
+    return true_range.ewm(alpha=1 / window, min_periods=window, adjust=False).mean()
+
+
+def obv(close: pd.Series, volume: pd.Series) -> pd.Series:
+    """On-Balance Volume — cumulative volume flow based on price direction.
+
+    Adds the day's volume when price closes higher than the previous
+    day, subtracts it when lower, leaves it unchanged when flat. The
+    absolute level is arbitrary (depends on where the series starts)
+    — what matters for analysis is the *trend/slope* of OBV, not its
+    raw value.
+    """
+    direction = np.sign(close.diff()).fillna(0)
+    return (direction * volume).cumsum()
+
+
+def momentum(series: pd.Series, window: int = 10) -> pd.Series:
+    """Rate of change over `window` periods, as a percentage.
+
+    momentum_t = (price_t / price_(t-window) - 1) * 100
+
+    Unlike SMA/EMA, this is a direct point-to-point comparison, not
+    a smoothed average — positive means price is higher than
+    `window` periods ago, negative means lower.
+    """
+    return (series / series.shift(window) - 1) * 100

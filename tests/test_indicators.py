@@ -1,9 +1,10 @@
 """Tests for technical indicators (src/idxlab/indicators.py)."""
 
+import pytest  # tambahkan baris ini
 import numpy as np
 import pandas as pd
 
-from idxlab.indicators import bollinger_bands, ema, macd, rsi, sma
+from idxlab.indicators import atr, bollinger_bands, ema, macd, momentum, obv, rsi, sma
 
 
 def _price_series(values: list[float]) -> pd.Series:
@@ -83,3 +84,50 @@ def test_bollinger_upper_band_above_lower_band():
     valid = bands.dropna()
 
     assert (valid["bb_upper"] > valid["bb_lower"]).all()
+
+def test_atr_equals_high_minus_low_when_no_gaps():
+    dates = pd.date_range("2024-01-01", periods=20, freq="D")
+    high = pd.Series([10.0] * 20, index=dates)
+    low = pd.Series([8.0] * 20, index=dates)
+    close = pd.Series([9.0] * 20, index=dates)
+
+    result = atr(high, low, close, window=14)
+
+    valid = result.dropna()
+    assert not valid.empty
+    assert valid.apply(lambda v: v == pytest.approx(2.0)).all()
+
+
+def test_atr_captures_overnight_gap():
+    dates = pd.date_range("2024-01-01", periods=5, freq="D")
+    high = pd.Series([10, 10, 10, 10, 50], index=dates)  # big gap on the last day
+    low = pd.Series([8, 8, 8, 8, 48], index=dates)
+    close = pd.Series([9, 9, 9, 9, 49], index=dates)
+
+    result = atr(high, low, close, window=3)
+
+    # Last day's true range is dominated by the gap (|48 - 9| = 39),
+    # not just high-low (=2), so ATR should jump sharply.
+    assert result.iloc[-1] > result.iloc[-2]
+
+
+def test_obv_tracks_price_direction():
+    dates = pd.date_range("2024-01-01", periods=4, freq="D")
+    close = pd.Series([100, 105, 102, 102], index=dates)  # up, down, flat
+    volume = pd.Series([1000, 2000, 1500, 1000], index=dates)
+
+    result = obv(close, volume)
+
+    assert result.iloc[0] == 0
+    assert result.iloc[1] == 2000  # up day: +volume
+    assert result.iloc[2] == 2000 - 1500  # down day: -volume
+    assert result.iloc[3] == result.iloc[2]  # flat day: unchanged
+
+
+def test_momentum_matches_manual_percentage():
+    dates = pd.date_range("2024-01-01", periods=11, freq="D")
+    series = pd.Series([100] * 10 + [110], index=dates)  # +10% vs 10 days ago
+
+    result = momentum(series, window=10)
+
+    assert result.iloc[-1] == pytest.approx(10.0)
