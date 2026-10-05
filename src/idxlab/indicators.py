@@ -138,7 +138,7 @@ def obv(close: pd.Series, volume: pd.Series) -> pd.Series:
     — what matters for analysis is the *trend/slope* of OBV, not its
     raw value.
     """
-    direction = np.sign(close.diff()).fillna(0)
+    direction: pd.Series = np.sign(close.diff()).fillna(0)
     return (direction * volume).cumsum()
 
 

@@ -66,7 +66,7 @@ class DataLoader:
             "Fetching %s from yfinance (%s -> %s)",
             ticker, self.start_date, self.end_date,
         )
-        df = yf.download(
+        df: pd.DataFrame = yf.download(
             ticker,
             start=self.start_date,
             end=self.end_date,
