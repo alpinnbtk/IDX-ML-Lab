@@ -16,8 +16,18 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest"]
+dev = ["pytest", "mypy", "pandas-stubs", "types-PyYAML"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["idxlab*"]
+
+[tool.mypy]
+files = ["src"]
+disallow_untyped_defs = true
+warn_return_any = true
+warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+module = ["yfinance", "yfinance.*"]
+ignore_missing_imports = true
