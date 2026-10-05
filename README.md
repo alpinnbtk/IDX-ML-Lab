@@ -76,7 +76,7 @@ streamlit run app/dashboard.py
 
 ## Progress
 
-- [ ] Week 1–2 — Data engineering & feature pipeline
+- [✓] Week 1–2 — Data engineering & feature pipeline
 - [ ] Week 3–4 — Classical ML & backtesting (`v0.1-classical-ml`)
 - [ ] Week 5–6 — Deep learning models (`v0.2-deep-learning`)
 - [ ] Week 7–8 — API, dashboard, CI, polish (`v1.0`)
