@@ -94,3 +94,14 @@ def test_build_dataset_is_shorter_than_raw_due_to_warmup_and_horizon():
     dataset = build_dataset(df, horizon=1)
 
     assert len(dataset) < len(df)
+
+def test_build_dataset_labels_match_next_day_close():
+    df = _fake_ohlcv(n_days=60)
+
+    dataset = build_dataset(df, horizon=1)
+
+    date = dataset.index[5]
+    pos = df.index.get_loc(date)
+    expected = (df["Close"].iloc[pos + 1] / df["Close"].iloc[pos] - 1) * 100
+
+    assert dataset.loc[date, "forward_return"] == pytest.approx(expected)

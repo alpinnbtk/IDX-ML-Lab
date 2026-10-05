@@ -76,3 +76,41 @@ def test_drop_unlabeled_rows_removes_only_trailing_nan():
 
     assert len(cleaned) == len(df) - 2
     assert cleaned.notna().all().all()
+
+@pytest.mark.parametrize("horizon", [1, 3, 5])
+def test_forward_return_trailing_nan_count_equals_horizon(horizon):
+    series = _price_series([100 + i for i in range(20)])
+
+    result = forward_return(series, horizon=horizon)
+
+    assert result.isna().sum() == horizon
+    assert result.iloc[-horizon:].isna().all()
+
+
+def test_changing_last_price_only_affects_the_label_before_it():
+    original = _price_series([100, 101, 102, 103, 104])
+    modified = original.copy()
+    modified.iloc[-1] = 200
+
+    before = forward_return(original, horizon=1)
+    after = forward_return(modified, horizon=1)
+
+    # Every label except the one right before the changed price is untouched...
+    pd.testing.assert_series_equal(before.iloc[:-2], after.iloc[:-2])
+    # ...and that one label does change.
+    assert before.iloc[-2] != after.iloc[-2]
+
+
+def test_horizon_longer_than_series_gives_all_nan():
+    series = _price_series([100, 101, 102])
+
+    assert forward_return(series, horizon=5).isna().all()
+    assert direction_label(series, horizon=5).isna().all()
+
+
+def test_direction_label_only_contains_zero_one_or_nan():
+    series = _price_series([100, 105, 103, 103, 110, 108])
+
+    result = direction_label(series, horizon=1)
+
+    assert set(result.dropna().unique()) <= {0.0, 1.0}

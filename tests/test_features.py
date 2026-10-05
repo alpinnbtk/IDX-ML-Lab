@@ -2,6 +2,7 @@
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from idxlab.features import FeaturePipeline
 from idxlab.indicators import momentum, sma
@@ -74,3 +75,41 @@ def test_transform_many_applies_to_every_ticker():
 
     assert set(result.keys()) == {"AAA.JK", "BBB.JK"}
     assert all(isinstance(df, pd.DataFrame) for df in result.values())
+
+def test_features_do_not_use_future_data():
+    """Features for a given date must be identical whether or not
+    later dates exist in the data. If any indicator peeked at the
+    future, trimming the data would change earlier rows."""
+    df = _fake_ohlcv(n_days=60)
+    cutoff = 50
+
+    full = FeaturePipeline().transform(df)
+    truncated = FeaturePipeline().transform(df.iloc[:cutoff])
+
+    pd.testing.assert_frame_equal(full.iloc[:cutoff], truncated)
+
+
+@pytest.mark.parametrize("missing_column", ["High", "Low", "Close", "Volume"])
+def test_transform_raises_when_required_column_missing(missing_column):
+    df = _fake_ohlcv().drop(columns=[missing_column])
+
+    with pytest.raises(KeyError):
+        FeaturePipeline().transform(df)
+
+
+def test_transform_on_very_short_data_does_not_crash():
+    df = _fake_ohlcv(n_days=5)
+
+    features = FeaturePipeline().transform(df)
+
+    assert len(features) == 5
+    assert features["sma"].isna().all()  # window 20 can't be satisfied with 5 rows
+
+
+def test_bb_width_equals_upper_minus_lower():
+    df = _fake_ohlcv()
+
+    features = FeaturePipeline().transform(df)
+    expected = features["bb_upper"] - features["bb_lower"]
+
+    pd.testing.assert_series_equal(features["bb_width"], expected, check_names=False)
