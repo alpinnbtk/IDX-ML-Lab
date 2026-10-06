@@ -13,6 +13,7 @@ dependencies = [
     "pyarrow",
     "pyyaml",
     "python-dotenv",
+    "scikit-learn",
 ]
 
 [project.optional-dependencies]
@@ -29,5 +30,5 @@ warn_return_any = true
 warn_unused_ignores = true
 
 [[tool.mypy.overrides]]
-module = ["yfinance", "yfinance.*"]
+module = ["yfinance", "yfinance.*", "sklearn", "sklearn.*"]
 ignore_missing_imports = true
