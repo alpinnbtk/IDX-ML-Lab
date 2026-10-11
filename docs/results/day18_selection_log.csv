@@ -1,0 +1,5 @@
+challenger,incumbent,auc_diff,ci_low,ci_high,promoted
+rf_default,logreg,-0.023,-0.129,0.079,False
+rf_tuned,logreg,-0.023,-0.129,0.079,False
+xgb_default,logreg,-0.009,-0.124,0.108,False
+xgb_tuned,logreg,0.011,-0.089,0.111,False
