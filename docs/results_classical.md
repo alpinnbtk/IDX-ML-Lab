@@ -35,21 +35,22 @@ Known weaknesses of the procedure: the bootstrap resamples rows independently an
 
 ## Validation results
 
-TODO: paste the table from `results/day18_comparison.csv` (printed as Markdown at the end of the notebook).
+| model | accuracy | precision | recall | f1 | roc_auc | auc_ci_low | auc_ci_high |
+|---|---|---|---|---|---|---|---|
+| dummy | 0.598 | 0.0 | 0.0 | 0.0 | 0.5 | 0.5 | 0.5 |
+| logreg | 0.583 | 0.458 | 0.216 | 0.293 | 0.571 | 0.465 | 0.669 |
+| rf_default | 0.449 | 0.404 | 0.784 | 0.533 | 0.547 | 0.442 | 0.649 |
+| rf_tuned | 0.449 | 0.404 | 0.784 | 0.533 | 0.547 | 0.442 | 0.649 |
+| xgb_default | 0.48 | 0.416 | 0.725 | 0.529 | 0.561 | 0.455 | 0.664 |
+| xgb_tuned | 0.543 | 0.448 | 0.588 | 0.508 | 0.582 | 0.481 | 0.684 |
 
 ![Validation ROC-AUC with 95% bootstrap intervals](figures/day18_val_auc_ci.png)
 
-## What the earlier experiments showed
-
-- **Tuning (Day 16):** TODO: how much did CV ROC-AUC improve over the defaults, how wide was the spread of the 40 Optuna trials, and did the improvement carry over to validation?
-- **Feature importance (Day 15):** TODO: one or two sentences; details in [feature_importance.md](feature_importance.md)
-- **Class imbalance (Day 17):** TODO: how lopsided were the classes, and what did class weights and threshold shifting change (and not change)?
-
 ## Decision
 
-- **Selected model:** TODO
-- **Evidence:** TODO (paired intervals from `results/day18_selection_log.csv`)
-- **Chance check:** TODO (does the validation AUC interval exclude 0.5?)
+- **Selected model:** logreg
+- **Evidence:** logreg: val ROC-AUC 0.571, 95% CI [0.465, 0.669]
+- **Chance check:** Interval excludes 0.5 (skill demonstrated): False
 
 ## Test set result
 
