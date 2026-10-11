@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from idxlab.evaluation import evaluate_classifier
+from idxlab.evaluation import evaluate_classifier, bootstrap_auc_ci, paired_bootstrap_auc_diff
 
 # Small enough to verify by hand:
 # TP=2, FP=1, FN=1, TN=2  ->  accuracy 4/6, precision 2/3, recall 2/3.
@@ -38,3 +38,48 @@ def test_no_positive_predictions_gives_zero_precision_not_error():
 
     assert result["precision"] == 0.0
     assert result["recall"] == 0.0
+
+def _noisy_scores(n: int = 300, strength: float = 0.5, seed: int = 0):
+    rng = np.random.default_rng(seed)
+    y = rng.integers(0, 2, size=n)
+    return y, y * strength + rng.normal(size=n)
+
+
+def test_bootstrap_ci_is_reproducible_and_ordered():
+    y, p = _noisy_scores()
+
+    first = bootstrap_auc_ci(y, p, n_boot=200, seed=1)
+    second = bootstrap_auc_ci(y, p, n_boot=200, seed=1)
+
+    assert first == second
+    assert first[0] < first[1]
+
+
+def test_bootstrap_ci_contains_observed_auc():
+    from sklearn.metrics import roc_auc_score
+
+    y, p = _noisy_scores()
+
+    lo, hi = bootstrap_auc_ci(y, p, n_boot=500)
+
+    assert lo <= roc_auc_score(y, p) <= hi
+
+
+def test_paired_diff_is_zero_for_identical_models():
+    y, p = _noisy_scores()
+
+    diff, lo, hi = paired_bootstrap_auc_diff(y, p, p, n_boot=200)
+
+    assert diff == pytest.approx(0.0)
+    assert lo == pytest.approx(0.0)
+    assert hi == pytest.approx(0.0)
+
+
+def test_paired_diff_detects_clearly_better_model():
+    y, good = _noisy_scores(strength=3.0, seed=0)
+    _, bad = _noisy_scores(strength=0.0, seed=5)  # same seed-independent noise, no signal
+
+    diff, lo, hi = paired_bootstrap_auc_diff(y, good, bad, n_boot=500)
+
+    assert diff > 0.2
+    assert lo > 0
