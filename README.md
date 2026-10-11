@@ -46,15 +46,15 @@ idx-ml-lab/
 
 ## Results
 
-*(fill in as Weeks 3–6 complete)*
+Validation set only (BBCA.JK, ~130 trading days, chronological split). The test set has not been used yet. With this sample size, differences of a few points between models are within noise; see [docs/results_classical.md](docs/results_classical.md) for intervals and the model selection rule.
 
-| Model | Accuracy | Sharpe (backtest) | Max Drawdown |
-|---|---|---|---|
-| Logistic Regression (baseline) | — | — | — |
-| Random Forest | — | — | — |
-| XGBoost | — | — | — |
-| LSTM | — | — | — |
-| Ensemble | — | — | — |
+| Model | Val accuracy | Val ROC-AUC | Sharpe (backtest) | Max Drawdown |
+|---|---|---|---|---|
+| Logistic Regression | 0.583 | 0.571 | — | — |
+| Random Forest (<default/tuned>) | 0.449 | 0.547 | — | — |
+| XGBoost (<default/tuned>) | 0.543 | 0.582 | — | — |
+| LSTM | — | — | — | — |
+| Ensemble | — | — | — | — |
 
 ## How to run
 
