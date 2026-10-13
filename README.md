@@ -50,9 +50,9 @@ Validation set only (BBCA.JK, ~130 trading days, chronological split). The test 
 
 | Model | Val accuracy | Val ROC-AUC | Sharpe (backtest) | Max Drawdown |
 |---|---|---|---|---|
-| Logistic Regression | 0.583 | 0.571 | — | — |
-| Random Forest (<default/tuned>) | 0.449 | 0.547 | — | — |
-| XGBoost (<default/tuned>) | 0.543 | 0.582 | — | — |
+| Logistic Regression | 0.583 | 0.571 | -0.56 | -9.6% |
+| Random Forest (<default/tuned>) | 0.449 | 0.547 | -0.44 | -15.9% |
+| XGBoost <tuned> | 0.543 | 0.582 | -0.54 | -11,6% |
 | LSTM | — | — | — | — |
 | Ensemble | — | — | — | — |
 
