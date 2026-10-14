@@ -14,6 +14,25 @@ def cumulative_return(returns: pd.Series) -> float:
     growth = np.prod((1 + returns).to_numpy())          
     return float(growth - 1)
 
+def exposure_matched_return(returns: pd.Series, exposure: float) -> float:
+    """Cumulative return of holding only a fixed fraction of the stock.
+
+    A fairer yardstick than full buy-and-hold for a strategy that sits in
+    cash most of the time: each day, ``exposure`` of the money is in the
+    stock and the rest earns 0. With ``exposure=1`` this equals plain
+    buy-and-hold; with ``exposure=0`` it is 0.
+
+    Parameters
+    ----------
+    returns : pd.Series
+        Daily stock returns over the same period as the strategy.
+    exposure : float
+        Fraction of money in the stock, between 0 and 1 (use the strategy's
+        average ``position``).
+    """
+    if not 0.0 <= exposure <= 1.0:
+        raise ValueError("exposure must be between 0 and 1")
+    return cumulative_return(returns * exposure)
 
 def sharpe_ratio(
     returns: pd.Series,

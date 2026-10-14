@@ -11,6 +11,7 @@ from idxlab.metrics import (
     sharpe_ratio,
     summarize,
     win_rate,
+    exposure_matched_return,
 )
 
 
@@ -109,3 +110,21 @@ def test_summarize_has_expected_keys():
         "bench_max_drawdown",
     }
     assert set(summarize(daily).index) == expected
+
+def test_exposure_matched_full_exposure_equals_buy_and_hold():
+    returns = _series([0.01, -0.02, 0.03])
+    assert exposure_matched_return(returns, 1.0) == pytest.approx(cumulative_return(returns))
+
+
+def test_exposure_matched_zero_exposure_is_zero():
+    assert exposure_matched_return(_series([0.01, -0.02, 0.03]), 0.0) == 0.0
+
+
+def test_exposure_matched_half_exposure_halves_a_single_day():
+    assert exposure_matched_return(_series([0.10]), 0.5) == pytest.approx(0.05)
+
+
+@pytest.mark.parametrize("bad", [-0.1, 1.1])
+def test_exposure_matched_rejects_out_of_range_exposure(bad):
+    with pytest.raises(ValueError):
+        exposure_matched_return(_series([0.01]), bad)
