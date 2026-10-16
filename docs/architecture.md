@@ -37,7 +37,8 @@ flowchart TD
 | `features.py` | Combine all indicators into one feature table | `FeaturePipeline` | `indicators` |
 | `labels.py` | Build prediction targets from future prices | `forward_return`, `direction_label`, `build_labels` | none |
 | `split.py` | Join features and labels, then split chronologically | `build_dataset`, `time_based_split`, `SplitResult` | `features`, `labels` |
-| `metrics.py` | Return, Sharpe, max drawdown, win rate, ringkasan strategi vs buy-and-hold | `cumulative_return`, `sharpe_ratio`, `max_drawdown`, `win_rate`, `summarize` | 
+| `metrics.py` | Performance metrics for a backtest: return, Sharpe, max drawdown, win rate, and a strategy vs buy-and-hold summary | `cumulative_return`, `sharpe_ratio`, `max_drawdown`, `win_rate`, `exposure_matched_return`, `summarize` | `backtest` |
+| `walkforward.py` | Out-of-sample predictions from a training window that slides forward through time | `walk_forward_proba` | none (uses scikit-learn) |
 
 ## Data contract between stages
 
