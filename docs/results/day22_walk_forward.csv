@@ -1,0 +1,4 @@
+,cum_return,bench_cum_return,bench_matched,sharpe,max_drawdown,n_trades,exposure,auc,n_days
+"A. Static, val",-0.0378,-0.1116,-0.0189,-0.5633,-0.0961,4.0,0.189,0.5707,127.0
+"B. Walk-forward, same val dates",-0.0904,-0.1116,-0.0246,-1.2033,-0.1432,4.0,0.2441,0.5121,127.0
+"C. Walk-forward, full OOS",-0.1362,-0.2147,-0.0602,-0.4463,-0.2111,26.0,0.3163,0.4982,471.0
