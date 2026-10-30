@@ -39,6 +39,7 @@ flowchart TD
 | `split.py` | Join features and labels, then split chronologically | `build_dataset`, `time_based_split`, `SplitResult` | `features`, `labels` |
 | `metrics.py` | Performance metrics for a backtest: return, Sharpe, max drawdown, win rate, and a strategy vs buy-and-hold summary | `cumulative_return`, `sharpe_ratio`, `max_drawdown`, `win_rate`, `exposure_matched_return`, `summarize` | `backtest` |
 | `walkforward.py` | Out-of-sample predictions from a training window that slides forward through time | `walk_forward_proba` | none (uses scikit-learn) |
+| `sequences.py` | Sliding-window sequence samples with dates, train-only feature scaling, and a Keras `tf.data` wrapper | `make_windows`, `scale_features`, `select_by_dates`, `build_sequence_splits`, `to_tf_dataset` | `split` |
 
 ## Data contract between stages
 
@@ -50,6 +51,7 @@ flowchart TD
 | Labels (`build_labels`) | `forward_return` (%), `direction` (1.0 up, 0.0 down or flat) | Trailing `horizon` rows NaN (no future price yet) |
 | Dataset (`build_dataset`) | 12 feature columns + 2 label columns | No NaN |
 | Split (`time_based_split`) | `SplitResult` with `train`, `val`, `test` | Chronological, no overlap (validated on creation) |
+| Sequences (`build_sequence_splits`) | `X`: (samples, window, features) float32; `y`: (samples,); `dates`: date of each window's last row | No NaN; features scaled with train-only statistics; the first `window - 1` rows have no sample of their own |
 
 ## Design decisions
 
